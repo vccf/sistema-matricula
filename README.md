@@ -61,3 +61,10 @@ cp .env.example .env          # já contém valores de desenvolvimento
 npx prisma db push            # cria backend/prisma/dev.db com o schema
 npm run seed                  # popula cursos, disciplinas, alunos, histórico e turmas
 npm run dev                   # sobe em http://localhost:3001
+```
+### 2) Front-end
+
+```bash
+cd frontend
+npm install
+npm run dev
