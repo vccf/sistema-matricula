@@ -67,4 +67,4 @@ npm run dev                   # sobe em http://localhost:3001
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev                   #sobe em http://localhost:5173
