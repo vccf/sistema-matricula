@@ -1,0 +1,30 @@
+# dependências
+node_modules/
+**/node_modules/
+
+# build
+dist/
+build/
+**/dist/
+
+# env
+.env
+.env.local
+**/.env
+
+# banco
+*.db
+*.db-journal
+backend/prisma/dev.db*
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+
+# logs
+*.log
+npm-debug.log*

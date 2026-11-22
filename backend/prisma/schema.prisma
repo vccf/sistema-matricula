@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String? // senha opcional (regra do PDF)
+  role     String // "SECRETARIA" | "ALUNO"
+  student  Student?
+}
+
+model Course {
+  id            Int               @id @default(autoincrement())
+  code          String            @unique
+  name          String
+  chObrigatoria Int
+  chPerfil      Int
+  chLivre       Int
+  students      Student[]
+  curriculum    CurriculumEntry[]
+}
+
+model Student {
+  id          Int            @id @default(autoincrement())
+  name        String
+  userId      Int            @unique
+  user        User           @relation(fields: [userId], references: [id])
+  courseId    Int
+  course      Course         @relation(fields: [courseId], references: [id])
+  history     HistoryEntry[]
+  enrollments Enrollment[]
+}
+
+model Discipline {
+  id            Int               @id @default(autoincrement())
+  code          String            @unique
+  name          String
+  ch            Int
+  curriculum    CurriculumEntry[]
+  classGroups   ClassGroup[]
+  history       HistoryEntry[]
+  prerequisites Prerequisite[]    @relation("disc")
+  requiredBy    Prerequisite[]    @relation("pre")
+}
+
+model Prerequisite {
+  id           Int        @id @default(autoincrement())
+  disciplineId Int
+  requiresId   Int
+  discipline   Discipline @relation("disc", fields: [disciplineId], references: [id])
+  requires     Discipline @relation("pre", fields: [requiresId], references: [id])
+
+  @@unique([disciplineId, requiresId])
+}
+
+model CurriculumEntry {
+  id           Int        @id @default(autoincrement())
+  courseId     Int
+  disciplineId Int
+  type         String // "OBRIGATORIA" | "ELETIVA_PERFIL"
+  course       Course     @relation(fields: [courseId], references: [id])
+  discipline   Discipline @relation(fields: [disciplineId], references: [id])
+
+  @@unique([courseId, disciplineId])
+}
+
+model Professor {
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  classGroups ClassGroup[]
+}
+
+model ClassGroup {
+  id           Int          @id @default(autoincrement())
+  disciplineId Int
+  professorId  Int
+  vagas        Int
+  discipline   Discipline   @relation(fields: [disciplineId], references: [id])
+  professor    Professor    @relation(fields: [professorId], references: [id])
+  enrollments  Enrollment[]
+}
+
+model Enrollment {
+  id           Int        @id @default(autoincrement())
+  studentId    Int
+  classGroupId Int
+  status       String     @default("ATIVA") // "ATIVA" | "CANCELADA"
+  createdAt    DateTime   @default(now())
+  student      Student    @relation(fields: [studentId], references: [id])
+  classGroup   ClassGroup @relation(fields: [classGroupId], references: [id])
+
+  @@index([classGroupId, status])
+  @@index([studentId, status])
+}
+
+model HistoryEntry {
+  id           Int        @id @default(autoincrement())
+  studentId    Int
+  disciplineId Int
+  status       String // "APROVADA" | "REPROVADA"
+  semester     String?
+  student      Student    @relation(fields: [studentId], references: [id])
+  discipline   Discipline @relation(fields: [disciplineId], references: [id])
+}
